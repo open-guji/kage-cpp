@@ -1570,4 +1570,18 @@ namespace Kage {
         return cv;
     }
 
+    // Same context as DrawGlyph, but each stroke gets its own Canva.
+    std::vector<Canva> Mincho::DrawGlyphSeparated(
+        std::vector<Stroke> strokes) {
+        std::vector<Canva> result;
+        for(size_t i = 0; i < strokes.size(); i++) {
+            Canva cv;
+            auto tempdata = strokes;
+            tempdata.erase(tempdata.begin() + i);
+            DrawAdjustedStroke(cv, strokes[i], tempdata);
+            result.push_back(cv);
+        }
+        return result;
+    }
+
 } // namespace Kage

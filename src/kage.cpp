@@ -131,6 +131,36 @@ namespace Kage {
         canva.Concat(_pkFont->DrawGlyph(kageStrokes));
     }
 
+    // Mirrors @kurgm/kage-engine Kage.makeGlyphSeparated: the input `data` is
+    // one Stroke per glyph line (references included).  Each line is expanded
+    // to its own strokes; all expanded strokes are drawn together (so that
+    // per-stroke adjustment sees the whole glyph as context), then contours
+    // are regrouped per original line.
+    std::vector<std::vector<Canva>> Kage::MakeGlyphSeparatedOut(
+        std::vector<Stroke> data) {
+        // 1. How many strokes each line expands to.
+        std::vector<size_t> counts;
+        counts.reserve(data.size());
+        for(auto& line: data) {
+            std::vector<Stroke> single{line};
+            counts.push_back(GetStrokes(single).size());
+        }
+        // 2. Draw every expanded stroke into its own Canva, with the whole
+        //    glyph as adjustment context (same as DrawGlyph).
+        auto allCanvases = _pkFont->DrawGlyphSeparated(GetStrokes(data));
+        // 3. Regroup into per-line buckets.
+        std::vector<std::vector<Canva>> result;
+        result.reserve(counts.size());
+        size_t index = 0;
+        for(size_t c: counts) {
+            std::vector<Canva> bucket;
+            for(size_t j = 0; j < c && index < allCanvases.size(); j++, index++)
+                bucket.push_back(allCanvases[index]);
+            result.push_back(bucket);
+        }
+        return result;
+    }
+
     std::vector<Stroke> Kage::ExtractGlyph(std::string buhin) {
         return ExtractGlyph2(SearchBuhin(buhin));
     }

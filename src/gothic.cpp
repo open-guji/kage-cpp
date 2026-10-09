@@ -189,4 +189,16 @@ namespace Kage {
         return cv;
     }
 
+    // Same as DrawGlyph, but each stroke gets its own Canva.
+    std::vector<Canva> Gothic::DrawGlyphSeparated(
+        std::vector<Stroke> strokes) {
+        std::vector<Canva> result;
+        for(auto stroke: strokes) {
+            Canva cv;
+            DrawStroke(cv, stroke);
+            result.push_back(cv);
+        }
+        return result;
+    }
+
 } // namespace Kage

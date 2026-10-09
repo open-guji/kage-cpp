@@ -30,6 +30,8 @@ namespace Kage {
         Gothic(double size = 0);
         ~Gothic() = default;
         Canva DrawGlyph(std::vector<Stroke> strokes);
+        std::vector<Canva> DrawGlyphSeparated(
+            std::vector<Stroke> strokes) override;
     };
 
 } // namespace Kage
