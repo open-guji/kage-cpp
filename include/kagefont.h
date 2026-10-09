@@ -24,9 +24,11 @@ namespace Kage {
         virtual ~KageFont()                                  = default;
         virtual Canva DrawGlyph(std::vector<Stroke> strokes) = 0;
         // Same as DrawGlyph, but returns one Canva per stroke so that the
-        // caller can render / select strokes separately.
+        // caller can render / select strokes separately.  The default draws
+        // each stroke on its own (no inter-stroke adjustment); fonts whose
+        // DrawGlyph adjusts strokes against each other should override it.
         virtual std::vector<Canva> DrawGlyphSeparated(
-            std::vector<Stroke> strokes) = 0;
+            std::vector<Stroke> strokes);
 
         KageFontType GetType();
     };

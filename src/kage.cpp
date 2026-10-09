@@ -138,25 +138,26 @@ namespace Kage {
     // are regrouped per original line.
     std::vector<std::vector<Canva>> Kage::MakeGlyphSeparatedOut(
         std::vector<Stroke> data) {
-        // 1. How many strokes each line expands to.
+        // 1. Expand each line once (GetStrokes(data) is the concatenation of
+        //    the per-line expansions) and remember how many strokes it gave.
+        std::vector<Stroke> strokes;
         std::vector<size_t> counts;
         counts.reserve(data.size());
         for(auto& line: data) {
-            std::vector<Stroke> single{line};
-            counts.push_back(GetStrokes(single).size());
+            auto expanded = GetStrokes(std::vector<Stroke>{line});
+            counts.push_back(expanded.size());
+            strokes.insert(strokes.end(), expanded.begin(), expanded.end());
         }
         // 2. Draw every expanded stroke into its own Canva, with the whole
         //    glyph as adjustment context (same as DrawGlyph).
-        auto allCanvases = _pkFont->DrawGlyphSeparated(GetStrokes(data));
+        auto allCanvases = _pkFont->DrawGlyphSeparated(strokes);
         // 3. Regroup into per-line buckets.
         std::vector<std::vector<Canva>> result;
         result.reserve(counts.size());
-        size_t index = 0;
+        auto it = allCanvases.begin();
         for(size_t c: counts) {
-            std::vector<Canva> bucket;
-            for(size_t j = 0; j < c && index < allCanvases.size(); j++, index++)
-                bucket.push_back(allCanvases[index]);
-            result.push_back(bucket);
+            result.emplace_back(it, it + c);
+            it += c;
         }
         return result;
     }
