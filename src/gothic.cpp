@@ -195,7 +195,14 @@ namespace Kage {
         std::vector<Canva> result;
         for(auto stroke: strokes) {
             Canva cv;
-            DrawStroke(cv, stroke);
+            if(stroke.type == STROKE_SPECIAL) {
+                // Flip/rotate acts on everything drawn so far (see
+                // Mincho::DrawGlyphSeparated).
+                for(auto& prev: result)
+                    DrawStroke(prev, stroke);
+            } else {
+                DrawStroke(cv, stroke);
+            }
             result.push_back(cv);
         }
         return result;
